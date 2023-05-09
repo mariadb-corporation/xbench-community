@@ -1,7 +1,6 @@
 # Xbench
 
 Xbench is a CLI for running performance benchmarks against various databases in the cloud.
-Check out our [Confluence page](https://mariadbcorp.atlassian.net/wiki/spaces/PerfEng/pages/1623228476/Xbench)
 
 ## Support status
 
