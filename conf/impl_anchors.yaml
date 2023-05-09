@@ -1,0 +1,60 @@
+anchors_common: # Collection of useful common definitions
+  cloud_network: &public_cloud
+    cloud_type: public_cloud
+
+anchors_aws: # Collection of useful AWS specific definitions
+  storage1:
+    storage: &small_ebs
+      type: io2
+      size: 250 # Size in Gigabytes
+      iops: 999
+      device: /dev/xvdb
+  storage2:
+    storage: &ebs10K
+      type: io2
+      size: 1000 # Size in Gigabytes
+      iops: 10000
+      device: /dev/xvdb
+  huge:
+    storage: &huge10K
+      type: io2
+      size: 5000 # Size in Gigabytes
+      iops: 10000
+      device: /dev/xvdb
+  storage3:
+    storage: &ephemeral_nvme
+      type: ephemeral
+      device: /dev/nvme1n1 # m5d has 1x300GB NVMe SSD
+  storage4:
+    storage: &driver_logs
+      type: gp3 # 3,000 IOPS and 125 MB/s # https://aws.amazon.com/ebs/features/
+      size: 100 # Size in Gigabytes
+  storage5:
+    storage: &local_ssd
+      type: ephemeral
+      device: /dev/nvme0n1p1
+  storage6:
+    storage: &metrics_storage
+      type: gp2
+      size: 500
+
+anchors_gcp: # Collection of GCP specific definitions
+  storage1:
+    storage: &gcp_basic_nas
+      name: vol1
+      device: /dev/xvdb
+      type: filestore
+      # tier is optional. BASIC_HDD by default. See https://cloud.google.com/sdk/gcloud/reference/filestore/instances/create
+      # BASIC_HDD: 1TB-63.9TB in 1GB increments or its multiples.
+      # BASIC_SSD: 2.5TB-63.9TB in 1GB increments or its multiples.
+      # ENTERPRISE: 1TB-10TB in 256GB increments or its multiples.
+      tier: BASIC_HDD # Optional
+      size: 1 # Size in Terabytes
+      zone: us-central1-a
+  storage2:
+    storage: &gcp_disk
+      name: vol2
+      type: pd-ssd # Full list: gcloud compute disk-types list
+      size: 500 # Size in GB, min 10GB
+      zone: us-central1-a
+      device: sdb

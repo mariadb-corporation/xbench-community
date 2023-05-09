@@ -1,0 +1,11 @@
+sysbench:
+  - benchmark.Sysbench
+benchbase:
+  - benchmark.Benchbase
+locust:
+  - benchmark.Locust
+hammerdb:
+  - benchmark.Hammerdb
+all:
+  - benchmark.Sysbench
+  - benchmark.OrderEntry

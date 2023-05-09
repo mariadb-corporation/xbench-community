@@ -1,0 +1,1 @@
+enterprise_download_token: VAULT['maxscale_download_token']

@@ -1,0 +1,257 @@
+sysbench:
+  defaults:
+    klass: benchmark.SysbenchRunner
+    tables: 10
+    table_size: 1000000
+    scale: 1
+    bench: oltp
+    time: 360 # Actual time executing= time - warmup time
+    rand_seed: 1234567
+    report_interval: 10
+    rand_type: uniform
+    histogram: "on"
+    auto_inc: "off"
+    create_secondary: "on"
+    percentile: 95
+    threads: [8, 16, 32, 64, 128, 256, 512, 1024]
+    repeats: 1
+    warmup_time: 60
+    post_data_load: True # call backend specific code after data load
+    pre_workload_run: True # call backend specific code before each full repeat starts
+    pre_thread_run: True # call backend specific code before each thread
+    export_query_log: false
+
+  workloads:
+    cb_demo:
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+      repeats: 1
+      threads: [8, 16, 32, 64, 128, 256]
+    itest: # For integration tests purpose
+      threads: [8, 16]
+      repeats: 2
+      time: 160
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+    oltp_read_write: # For README
+      threads: [8, 16]
+      repeats: 2
+      time: 160
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+      post_data_load: False
+    tpc-c:
+      lua_name: tpcc
+      scale: 10
+      tables: 10
+      threads: [8]
+      time: 100
+    "9010":
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+    "5050":
+      lua_name: oltp_read_write
+      point_selects: 5
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 5
+      delete_inserts: 0
+    "slice_exp":
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+      threads: [64, 128, 256, 512, 1024]
+      table_size: 2000000
+      repeats: 1
+      time: 300
+    "8020":
+      lua_name: oltp_read_write
+      point_selects: 8
+      range_selects: "off"
+      index_updates: 0
+      non_index_updates: 2
+      delete_inserts: 0
+    "6040":
+      lua_name: oltp_read_write
+      point_selects: 6
+      range_selects: "off"
+      index_updates: 0
+      non_index_updates: 2
+      delete_inserts: 1
+      threads: [256, 512, 1024, 2048]
+    "6040_geolite":
+      lua_name: oltp_read_write
+      point_selects: 6
+      range_selects: "off"
+      index_updates: 0
+      non_index_updates: 2
+      delete_inserts: 1
+      threads: [256, 512, 1024, 2048]
+      post_data_load: False
+    "9010_geolite":
+      lua_name: oltp_read_write
+      point_selects: 9
+      range_selects: "false"
+      index_updates: 0
+      non_index_updates: 1
+      delete_inserts: 0
+      threads: [256, 512, 1024, 2048]
+      post_data_load: False
+    "scale": # For testing purpose Scale Out Scale In exercise
+      lua_name: oltp_read_write
+      point_selects: 8
+      range_selects: "off"
+      index_updates: 0
+      non_index_updates: 2
+      delete_inserts: 0
+      create_secondary: "off"
+      table_size: 20000000
+      threads: [8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+      repeats: 2
+      time: 300
+    read_only:
+      lua_name: oltp_read_only
+      skip_trx: "on"
+      range_selects: "off"
+    range_scan:
+      lua_name: oltp_read_only
+      point_selects: 0
+      skip_trx: "on"
+    tpcc-1k:
+      lua_name: tpcc
+      bench: tpcc
+      scale: 100
+      tables: 10
+      threads: [32, 64, 96, 128, 192, 256]
+      time: 360
+      warmup_time: 60
+      post_data_load: False
+    tpcc-10k:
+      lua_name: tpcc
+      bench: tpcc
+      scale: 1000
+      tables: 10
+      threads: [32, 64, 96, 128, 192, 256]
+      time: 360
+      warmup_time: 60
+      post_data_load: False
+
+benchbase:
+  defaults:
+    klass: benchmark.BenchbaseRunner
+    scale: 1000
+    batchsize: 128
+    randomseed: 1234567
+    time: 300
+    repeats: 1
+    post_data_load: True # call backend specific code after data load
+    pre_workload_run: True # call backend specific code before each full repeat starts
+    pre_thread_run: True # call backend specific code before each thread
+    raw_output: False
+    sampling_window: 10
+    export_query_log: false
+    error_threshold: 2 # percentage of transactions allowed to be errors
+    terminal_distribution_method: default # default random segmented
+  workloads:
+    tpcc_10:
+      scale: 10 # Code test/itest
+      bench: tpcc
+      terminals: [8] # must be a int or list
+      time: 60
+      warmup: 10
+      batchsize: 4096
+    tpcc_10k: #performance matrix
+      scale: 10000
+      bench: tpcc
+      terminals: [32, 64, 128, 256] # must be a int or list
+      time: 360
+      warmup: 60
+      batchsize: 4096
+    tpcc_1k:
+      scale: 1000
+      bench: tpcc
+      terminals: [32, 64, 128, 256] # must be a int or list
+      time: 360
+      warmup: 60
+      batchsize: 4096
+    tpcc_steady_state: # Long run to determine steady state
+      scale: 1000
+      bench: tpcc
+      terminals: [64]
+      time: 3600
+      warmup: 1800
+      repeats: 1
+      batchsize: 4096
+    xpand_softfail: #i3/i4 testing
+      scale: 10000
+      bench: tpcc
+      terminals: [2048] #128, 256, 512, 1024, 2048, 4096
+      time: 3600
+      warmup: 1800
+      batchsize: 4096
+      post_data_load: False
+    chbenchmark:
+      scale: 10
+      bench: chbenchmark
+      # Combined workload do not use terminals but this instead
+      terminals_tpcc: [0] # both list has to be the same length
+      terminals_chbenchmark: [1]
+      time: 360
+      warmup: 60
+    tpch_1:
+      scale: 1
+      bench: tpch
+      serial: "true"
+      terminals: [2, 4]
+      time: 360
+      warmup: 60
+      pre_workload_run: True
+      post_workload_run: True
+      error_threshold: 0 # TPC-H should have no errors
+
+hammerdb:
+  defaults:
+    klass: benchmark.HammerdbRunner
+    warehouses: 10          # 10 warehouses ~= 1 GB
+    num_vu_load: 8          # number of virtual users to build schema
+    num_vu: 8               # number of virtual users to run workload
+    raise_error: True
+    partition: False
+    prepared: False
+    keyandthink: False
+    warmup: 30              # seconds
+    time: 60                # seconds
+    allwarehouse: False     # set to true for increased IO
+    bench: tpcc
+    logtotemp: 1            # has to be 0 or 1
+    timestamps: 1           # has to be 0 or 1
+    refreshrate: 10         # seconds, default is 10
+    delay: 100              # ms, default is 500
+    repeats: 1              # xbench implemented repeats
+    post_data_load: False   # call backend specific code after data load
+    pre_workload_run: False # call backend specific code before each full repeat starts
+    pre_thread_run: False   # call backend specific code before each thread
+    export_query_log: false
+  workloads:
+    tpcc:
+      bench: tpcc
+      num_vu: [8]

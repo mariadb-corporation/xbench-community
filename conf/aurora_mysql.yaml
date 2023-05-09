@@ -1,0 +1,20 @@
+defaults:
+  db_parameter_group_name: best-aurora-mysql # default.aurora-mysql8.0
+
+globals: &default_globals # boolean has to be strings
+  max_connections: 4096
+
+db: &default_db
+  host: 127.0.0.1 # or could be multiple ip addresses delimited by commas
+  port: 3306
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+
+latest:
+  engine: aurora-mysql
+  engine_version: 8.0.mysql_aurora.3.01.0
+  db: *default_db
+  globals: *default_globals

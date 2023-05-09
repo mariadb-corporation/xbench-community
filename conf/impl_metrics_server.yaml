@@ -1,0 +1,26 @@
+metrics_aws:
+  cloud: aws
+  region: us-east-2-PerformanceEngineering
+  use_placement_group: False
+  backend:
+    klass: backend.MetricsServerBackend
+    klass_config_label: main
+    zone: us-east-2a
+    count: 1
+    instance_type: m5.large
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *metrics_storage
+
+metrics_gcp:
+  cloud: gcp
+  region: us-central1-clustrix
+  backend:
+    klass: backend.MetricsServer
+    klass_config_label: main
+    zone: us-central1-a
+    count: 1
+    instance_type: n2-standard-2
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *gcp_disk

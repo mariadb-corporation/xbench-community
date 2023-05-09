@@ -1,0 +1,28 @@
+defaults:
+  enterprise_download_token: VAULT['maxscale_download_token']
+  enable_prometheus_exporter: True
+  prometheus_port: 9290
+
+db: &default_db
+  host: 127.0.0.1 #
+  port: 3306
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+
+latest_xpand:
+  release: "6.3" # Latest releases: https://mariadb.com/kb/en/maxscale-6-release-notes/
+  db: *default_db
+  cnf_config_template: maxscale_xpand.cnf
+
+latest:
+  release: "6.4" # Latest releases: https://mariadb.com/kb/en/maxscale-6-release-notes/
+  db: *default_db
+  cnf_config_template: maxscale_xpand.cnf
+
+sky:
+  release: "22.08"
+  db: *default_db
+  cnf_config_template: maxscale_xpand.cnf

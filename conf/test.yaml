@@ -1,0 +1,8 @@
+storage: &ebs_volume
+  iops: 1000
+  size: 100
+Xpand:
+  node1:
+    id: node1
+    zone: us_weest_2a
+    storage: *ebs_volume

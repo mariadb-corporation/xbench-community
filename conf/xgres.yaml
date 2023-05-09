@@ -1,0 +1,23 @@
+defaults:
+  xgres_git_token: VAULT['xgres_git_token']
+
+globals: &default_globals # boolean has to be strings
+  max_connections: 4096
+
+# local postgres proxy db
+db: &default_db
+  host: 127.0.0.1 # or could be multiple ip addresses delimited by commas
+  port: 5432
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+
+latest:
+  version: "14"
+  db: *default_db
+  globals: *default_globals
+  xgres_query_path: FDW # "FDW" or anything else for dblink
+  build_tag: v0.10
+  pg_build_tag: "mariadb"

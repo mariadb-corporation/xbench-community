@@ -1,0 +1,69 @@
+defaults:
+  enterprise_download_token: VAULT['mariadb_download_token']
+  enable_prometheus_exporter: True
+  prometheus_port: 9104
+  data_dir: /data/mariadb
+  binlog: False
+  cnf_template: mariadb_performance.cnf
+
+globals: &default_globals
+  # boolean has to be strings
+  #max_connections: 4096
+
+
+db: &default_db
+  host: 127.0.0.1 # or could be multiple ip addresses delimited by commas
+  port: 3306
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: benchbase
+  connect_timeout: 5
+  read_timeout: 5
+
+# Enterprise Server: # https://mariadb.com/docs/skysql/ref/repo/cli/mariadb_es_repo_setup/mariadb-server-version/
+# Community: # Latest releases: http://mirror.mariadb.org/yum/
+latest:
+  release: 10.9.4
+  db: *default_db
+  globals: *default_globals
+community:
+  release: 10.8.3
+  db: *default_db
+  globals: *default_globals
+
+community_ssl:
+  release: 10.8.5 # Latest releases: http://mirror.mariadb.org/yum/
+  db:
+    host: 127.0.0.1
+    user: xbench
+    password: VAULT['xbench_db_password']
+    database: sysbench
+    port: 3306
+    ssl:
+      ssl_ca: ENV['HOME']/.xbench/certs/ca.pem
+      ssl_cert: ENV['HOME']/.xbench/certs/server-cert.pem
+      ssl_key: ENV['HOME']/.xbench/certs/server-key.pem
+    dialect: mysql
+    connect_timeout: 5
+    read_timeout: 5
+  globals: *default_globals
+
+scale:
+  release: 10.6.7-3
+  db: *default_db
+  globals: *default_globals
+
+skysql_mariadb:
+  enable_prometheus_exporter: False
+  release: 10.5.15-10 # SkySQL automatically get the latest possible release as of now
+  db:
+    host: 127.0.0.1
+    user: xbench
+    password: VAULT['xbench_db_password']
+    database: sysbench
+    port: 5001 # default skysql read/write port
+    ssl: False
+    dialect: mysql
+    connect_timeout: 5
+    read_timeout: 5
+  globals: *default_globals

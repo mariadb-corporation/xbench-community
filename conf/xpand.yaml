@@ -1,0 +1,156 @@
+defaults:
+  license: VAULT['xpand_license']
+  enable_prometheus_exporter: True
+  prometheus_port: 9200
+  data_dir: /data/clustrix
+  space_allocation_pct: 0.9 # How much space allocate from available space
+
+globals: &empty_globals
+
+globals_tpch: &tpch # boolean has to be strings
+  max_connections: 2064
+  sierra_enable_static_pds: "true"
+  lockman_max_locks: 10000000
+  lockman_max_transaction_locks: 3000000
+  sigma_max_var_mem_MiB: 1024
+  foreign_key_checks: "false"
+  gtm_schedule_til_batch_rows: 1000
+
+globals_cbench: &cbench # boolean has to be strings
+  max_connections: 2064
+  sierra_enable_static_pds: "true"
+  lockman_max_locks: 10000000
+  lockman_max_transaction_locks: 3000000
+  sigma_max_var_mem_MiB: 1024
+  foreign_key_checks: "false"
+  gtm_schedule_til_batch_rows: 1000
+  query_fanout_workers_per_rank: 8
+
+globals_tpcc: &tpcc # boolean has to be strings
+  max_connections: 2064
+  sierra_enable_static_pds: "true"
+  lockman_max_locks: 10000000
+  lockman_max_transaction_locks: 3000000
+  sigma_max_var_mem_MiB: 1024
+  query_fanout_all_writes: "true"
+  foreign_key_checks: "false"
+
+globals_xgres: &xgres # boolean has to be strings
+  max_connections: 2064
+  foreign_key_checks: "false"
+  cost_table_lock: 1000000
+  qpc_skip_recompiles: "true"
+  # hash_dist_min_slices: 5
+  #net_read_timeout: 300
+  #sierra_enable_static_pds: "true"
+  #lockman_max_locks: 10000000
+  #lockman_max_transaction_locks: 3000000
+  #sigma_max_var_mem_MiB: 1024
+
+default_globals: &default_globals # boolean has to be strings
+  max_connections: 2064
+  # hash_dist_min_slices: 90 # set number of slices = number of cores #TODO number of cores - 1
+  pdcache_max_num_changes: "0"
+  sierra_enable_static_pds: "true"
+  #layer_merge_always_full: "true"
+  #layer_merge_frisky: "true"
+  # fc_credits_per_node: 131072
+  # fc_channel_limit: 40
+  # layer_max_top_layer_size_bytes: 67108864 # slowdown layer merging activity
+  # layer_copy_speed_bytes: 10485760
+  # layer_copy_speed_rows: 2000000
+  # layer_short_read: 200
+  # layer_max_merge_per_device: 1
+
+db: &default_db
+  host: 127.0.0.1 # or could be multiple ip addresses delimited by commas
+  port: 3306
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+  autocommit: True
+
+latest:
+  branch: mainline1
+  build: "12345" # find the latest or could specify it 17441 as an example
+  db: *default_db
+  globals: *default_globals
+  clxnode_mem_pct: 0.85 # 80% of system memory, overrides install_option
+  hugetlb: True # enable/disable hugepages
+
+stable:
+  branch: mainline1
+  build: "12345" # not used if release is defined, but need to define because XpandConfig dataclass
+  release: 6.0.5 # release overrides build
+  db: *default_db
+  globals: *default_globals
+  clxnode_mem_pct: 0.85 # 80% of system memory, overrides install_option
+  hugetlb: True # enable/disable hugepages
+  #max_redo: 8192 # Value in MB
+  #install_options: # "--clxnode-mem=20480 --storage-allocate=200"
+
+tpch:
+  branch: mainline1
+  build: "12345" # not used if release is defined, but need to define because XpandConfig dataclass
+  release: "6.1" # release overrides build
+  db: *default_db
+  globals: *tpch
+  clxnode_mem_pct: 0.85 # 85% of system memory, overrides install_option. Max_redo will adjust it if necessary
+  hugetlb: True # enable/disable hugepages
+  max_redo: 8192 # Value in MB
+  space_allocation_pct: 0.8 # How much space allocate from available space. Save some space for max_redo
+
+chbench:
+  branch: mainline1
+  build: "12345" # not used if release is defined, but need to define because XpandConfig dataclass
+  release: 6.0.5 # release overrides build
+  db: *default_db
+  globals: *cbench
+  clxnode_mem_pct: 0.85 # 85% of system memory, overrides install_option. Max_redo will adjust it if necessary
+  hugetlb: True # enable/disable hugepages
+  max_redo: 1024 # Value in MB
+  space_allocation_pct: 0.8 # How much space allocate from available space. Save some space for max_redo
+
+tpcc:
+  branch: mainline1
+  build: "12345" # not used if release is defined, but need to define because XpandConfig dataclass
+  release: # 6.0.5 # release overrides build
+  db: *default_db
+  globals: *tpcc
+  clxnode_mem_pct: 0.85 # 85% of system memory, overrides install_option. Max_redo will adjust it if necessary
+  hugetlb: True # enable/disable hugepages
+  max_redo: 1024 # Value in MB
+  space_allocation_pct: 0.8 # How much space allocate from available space. Save some space for max_redo
+  #install_options: # "--clxnode-mem=20480 --storage-allocate=200"
+  #clxnode_additional_args: "-use-libaio"
+
+xgres:
+  branch: mainline1
+  build: "12345" # not used if release is defined, but need to define because XpandConfig dataclass
+  release: 6.0.5 # release overrides build
+  db: *default_db
+  globals: *xgres
+  clxnode_mem_pct: 0.85 # 85% of system memory, overrides install_option. Max_redo will adjust it if necessary
+  hugetlb: True # enable/disable hugepages
+  max_redo: 4096 # Value in MB
+  space_allocation_pct: 0.8 # How much space allocate from available space. Save some space for max_redo
+  #install_options: # "--clxnode-mem=20480 --storage-allocate=200"
+
+skysql_xpand:
+  enable_prometheus_exporter: False
+  branch: mainline1 # Not actually in use
+  build: "12345" # Not actually in use
+  release: MariaDB Xpand 5.3.21 # SkySQL automatically get the latest possible release as of now
+  db:
+    host: 127.0.0.1
+    user: xbench
+    password: VAULT['xbench_db_password']
+    database: sysbench
+    port: 5001 # default skysql read/write port
+    ssl: False
+    dialect: mysql
+    connect_timeout: 5
+    read_timeout: 5
+  globals: {}

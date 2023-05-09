@@ -1,0 +1,7 @@
+# Xbench main config file
+conf_dir: ENV['XBENCH_HOME']/conf
+dash_dir: ENV['XBENCH_HOME']/dashboards
+clusters_dir: ENV['HOME']/.xbench/clusters
+vault_file: ENV['HOME']/.xbench/vault.yaml
+pem_dir: ENV['HOME']/.xbench/pem # Where are pem files
+certs_dir: ENV['HOME']/.xbench/certs # Where are SSL certs files

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "MLA citation for xbench software by Dmitry Volkov, Orlando Moreno, Grant Holly, Axel Schwenke, Ilya Belomutov, Leonid Fedorov"
+authors:
+  - name: "Dmitry Volkov"
+    affiliation: "Independent Developer"
+    email: dsvolk@gmail.com
+  - name: "Orlando Moreno"
+    affiliation: "MariaDB"
+  - name: "Grant Holly"
+    affiliation: "gdholly@gmail.com"
+  - name: "Axel Schwenke"
+    affiliation: "MariaDB"
+  - name: "Ilya Belomutov"
+    affiliation: "Independent Developer"
+
+title: "Xbench"
+version: "0.2"
+date-released: 2023
+type: "Software"
+license:
+  name: "GNU General Public License v3.0"
+  url: "https://www.gnu.org/licenses/gpl-3.0.en.html"
+doi: NULL
+url: "https://github.com/mariadb-corporation/xbench-community"

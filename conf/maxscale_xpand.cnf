@@ -1,0 +1,36 @@
+[maxscale]
+threads=auto
+
+[XpandBootStrap]
+type=server
+address={{xpand.host}}
+port={{xpand.port}}
+protocol=mariadbbackend
+
+[XpandMonitor]
+type=monitor
+module=xpandmon
+servers=XpandBootStrap
+user={{xpand.user}}
+password={{xpand.password}}
+monitor_interval=2000
+
+[ROService]
+type=service
+router=readconnroute
+user={{xpand.user}}
+password={{xpand.password}}
+cluster=XpandMonitor
+
+[ROListener]
+type=listener
+service=ROService
+protocol=MariaDBClient
+address=0.0.0.0
+port={{maxscale.port}}
+{% if maxscale.ssl %}
+ssl_cert = /etc/my.cnf.d/certificates/server-cert.pem
+ssl_key = /etc/my.cnf.d/certificates/server-key.pem
+ssl_ca_cert = /etc/my.cnf.d/certificates/ca.pem
+ssl = true
+{% endif %}

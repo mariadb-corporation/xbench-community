@@ -1,0 +1,93 @@
+itest_gcp: # For integration tests
+  cloud: gcp
+  region: us-central1-clustrix
+  driver: &gcp_driver
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    # storage: *gcp_basic_nas # tests GCP NAS storage, takes several minutes to (de-)provision
+    # network: *public_cloud # cannot reference nodes defined in other YAML files
+  backend:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    # network: *public_cloud # cannot reference nodes defined in other YAML files
+    storage: *gcp_disk
+
+itest_gcp_shared_storage: # For integration tests
+  cloud: gcp
+  region: us-central1-clustrix
+  shared_storage:
+    - *gcp_basic_nas
+  driver:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    storage: *gcp_disk # tests GCP NAS storage, takes several minutes to (de-)provision
+    # network: *public_cloud # cannot reference nodes defined in other YAML files
+  backend:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    # network: *public_cloud # cannot reference nodes defined in other YAML files
+    storage_list:
+      - *gcp_disk
+
+gcp_only_driver:
+  cloud: gcp
+  region: us-central1-clustrix
+  driver:
+    <<: *gcp_driver
+
+itest_gcp_alloydb: # For integration tests
+  cloud: gcp_alloydb
+  region: us-central1-clustrix
+  backend:
+    managed: False
+    klass: backend.AlloyDB
+    klass_config_label: latest
+    count: 1
+    zone: us-west3
+    # instance_type name tells CPU count and memory size. It's used to calculate Postgres config param values.
+    instance_type: n2-highmem-16 # https://cloud.google.com/compute/docs/general-purpose-machines#n2-high-mem
+    password: VAULT['xbench_db_password'] # AlloyDB cluster password, see https://cloud.google.com/sdk/gcloud/reference/beta/alloydb/clusters/create
+    network: *public_cloud
+
+gcp_single_node_ssd:
+  cloud: gcp
+  region: us-central1-clustrix
+  driver:
+    managed: True
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-8
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    managed: True
+    klass: backend.MariaDBServer
+    klass_config_label: latest
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-16
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *gcp_disk

@@ -1,0 +1,1009 @@
+!include impl_anchors.yaml
+---
+!include impl_gcp.yaml
+---
+!include impl_tidb.yaml
+---
+!include impl_readme.yaml
+---
+!include impl_colo.yaml
+---
+!include impl_metrics_server.yaml
+---
+defaults:
+  managed: True # Set to False to exclude from any sort of ssh activity
+  provisioned: True # Set to false to exclude from provisioning/deprovisioning
+  os_type: CentOS7
+  zone: us-west-2a
+
+simple_external: # e.x. SkySQL for example. For use with simple topo
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.ExternalXpand # backend.ExternalMysqlDB
+    klass_config_label: skysql_xpand
+    count: 1
+    managed: False
+    provisioned: False
+    network:
+      public_ip: 127.0.0.1 # It could be passed in command line as backend.network.public_ip
+      cloud_type: private_cloud # Driver will use public IP
+
+simple_aws: # For use with simple topo
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  key_name: PerformanceEngineering # this is AWS name
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: Benchbase
+    count: 1
+    zone: us-west-2a
+    instance_type: t2.micro
+    os_type: CentOS7 # Need to be in cloud
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable
+    count: 3
+    zone: us-west-2a
+    instance_type: t2.micro
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+test_only: # For code testing purpose
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: CentOS7
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: m5d.2xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+default_xpand:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  proxy:
+    klass: proxy.Maxscale # must be class reference
+    klass_config_label: latest_xpand # maxscale.yaml will have a reference to the cnf template
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+itest: # For integration tests
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+scale_xpand:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver1:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  driver2:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2b
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  proxy1:
+    klass: proxy.Maxscale # must be class reference
+    klass_config_label: latest # maxscale.yaml will have a reference to the cnf template
+    count: 1
+    zone: us-west-2a
+    instance_type: m5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  proxy2:
+    klass: proxy.Maxscale # must be class reference
+    klass_config_label: latest # maxscale.yaml will have a reference to the cnf template
+    count: 1
+    zone: us-west-2b
+    instance_type: m5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend1:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend2:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2b
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend3:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2c
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+scale: # For scale in scale out exercise
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2c
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.MariaDBEnterprise
+    klass_config_label: scale # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2c
+    instance_type: c5d.9xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+performance:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench
+    count: 2
+    zone: us-west-2d
+    instance_type: c5.2xlarge
+    os_type: CentOS8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2d
+    instance_type: c5d.4xlarge # 1 NVME drive
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+itest_xpand: # For clustrixbench comparisons
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: CentOS7
+    network: *public_cloud
+  backend1:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend2:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2b
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend3:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2c
+    instance_type: c5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+skysql_xpand: # mdbint-skysql-test
+  cloud: skysql
+  region: aws-us-west-2
+  backend:
+    managed: False
+    # kind: Distributed Transactions note: for now always use xpand
+    klass: backend.SkySQLXpand
+    klass_config_label: skysql_xpand
+    count: 3
+    ssl: False
+    instance_type: sky-4x16
+    network: *public_cloud
+    kind: xpand
+    storage:
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 5000
+
+skysql_mariadb: # mdbint-skysql-mariadb
+  cloud: skysql
+  region: aws-us-west-2
+  backend:
+    managed: False
+    klass: backend.SkySQLMariaDB
+    klass_config_label: skysql_mariadb # This is label from conf/mariadb.yaml
+    count: 1
+    instance_type: sky-4x16
+    network: *public_cloud
+    storage:
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 5000
+
+skysql_xgres: # mdbint-skysql-xgres
+  cloud: skysql2
+  region: aws-us-east1-2-dev
+  backend:
+    managed: False
+    klass: backend.SkySQLXgres
+    klass_config_label: stable
+    count: 3
+    ssl: False
+    instance_type: sky-4x16
+    network: *public_cloud
+    kind: xpand
+    storage:
+      type: gp2
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 5000
+
+skysql_driver:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+
+only_driver:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: CentOS8
+    network: *public_cloud
+
+itest_cloud: # For integration tests
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.AuroraMySql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    network: *public_cloud
+
+itest_aurora: # For integration tests
+  cloud: aws_aurora # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.AuroraMySql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: db.r5.2xlarge
+    network: *public_cloud
+
+benchbase_xpand_pg:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.18xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: m5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+benchbase_xpand_no_pg:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.9xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: r5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+benchbase_xpand_3z:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: false
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.18xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend1:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2a
+    instance_type: m5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend2:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2b
+    instance_type: m5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend3:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2c
+    instance_type: m5d.4xlarge
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+postgres_test:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    instance_type: t2.micro
+    os_type: CentOS8
+    network: *public_cloud
+  backend:
+    klass: backend.PostgreSQLDB
+    klass_config_label: latest_stable
+    count: 1
+    zone: us-west-2a
+    instance_type: t2.micro
+    os_type: CentOS7
+    network: *public_cloud
+
+i4_test_tpcc:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2d
+    instance_type: c5.9xlarge
+    os_type: Rocky8 # Better for xpand-locust
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2d
+    instance_type: i4i.4xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+itest_east2:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-east-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  # driver:
+  #   klass: driver.BaseDriver # must be class reference
+  #   klass_config_label: sysbench
+  #   count: 1
+  #   zone: us-east-2a
+  #   instance_type: c5.2xlarge
+  #   os_type: Rocky8
+  #   network: *public_cloud
+  backend1:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-east-2a
+    instance_type: c5d.4xlarge # 1 NVME drive
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+itest_east1:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-east-1-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench
+    count: 1
+    zone: us-east-1a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend2:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-east-1a
+    instance_type: c5d.4xlarge # 1 NVME drive
+    os_type: CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+aws_mariadb_ebs:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ebs10K
+
+# Could be any single node database Postgres, MariaDB, MySQL etc..
+aws_single_node_nvme:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2b
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBEnterprise
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2b
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+# Single node based on EBS
+aws_single_node_ebs:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2b
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBEnterprise
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2b
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage:
+      type: io2
+      size: 1000 # Size in Gigabytes
+      iops: 20000
+      device: /dev/xvdb
+
+cs_enterprise: # For columnstore test purpose
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.ColumnStore
+    klass_config_label: enterprise
+    count: 3
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *small_ebs
+
+cs_jenkins: # For columnstore test purpose
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.ColumnStore
+    klass_config_label: jenkins
+    count: 3
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *small_ebs
+
+cs_develop_arm: # For columnstore test purpose
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    arch : x86_64
+    network: *public_cloud
+  backend:
+    klass: backend.ColumnStore
+    klass_config_label: latest
+    count: 3
+    zone: us-west-2b
+    instance_type: a1.xlarge
+    os_type: Rocky8
+    arch : aarch64
+    network: *public_cloud
+    storage: *small_ebs
+
+i4-xpand: # Use zones B,C,D for more resources, AWS is limited in i4 resources
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2b
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend1:
+    klass: backend.Xpand
+    klass_config_label: glassbutte_tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2b
+    instance_type: i4i.4xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend2:
+    klass: backend.Xpand
+    klass_config_label: glassbutte_tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2c
+    instance_type: i4i.4xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  backend3:
+    klass: backend.Xpand
+    klass_config_label: glassbutte_tpcc # For xpand this is configuration which includes release/branch
+    count: 2
+    zone: us-west-2d
+    instance_type: i4i.4xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+xpand_single_node:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2d
+    instance_type: c5.9xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2d
+    instance_type: r5.8xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *huge10K
+
+xpand_scalability_mariadb:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.9xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBServer
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: r5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ebs10K
+
+xpand_scalability:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.9xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: r5.4xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ebs10K
+
+xpand_scalability_aurora: #
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.AuroraMySql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: r5.4xlarge
+    network: *public_cloud
+
+benchbase_xpand_simple:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpch # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: m5d.2xlarge
+    os_type: RHEL7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+xm_dev:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    os_type: Rocky8
+    instance_type: c5.large
+    network: *public_cloud
+  proxy:
+    klass: proxy.Xm
+    klass_config_label: default
+    count: 3
+    zone: us-west-2a
+    os_type: Rocky8
+    #instance_type: c5d.9xlarge
+    instance_type: c5.4xlarge
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: latest
+    count: 3
+    zone: us-west-2a
+    os_type: CentOS7
+    instance_type: c5d.2xlarge
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+xgres_throughput_test:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_group: True
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    os_type: Rocky8
+    instance_type: c5.4xlarge
+    network: *public_cloud
+  proxy:
+    klass: proxy.Xgres
+    klass_config_label: latest
+    count: 1
+    zone: us-west-2a
+    os_type: Rocky8
+    instance_type: m5d.4xlarge
+    network: *public_cloud
+    storage: *ephemeral_nvme
+    #storage: *ebs10K
+  backend:
+    klass: backend.Xpand
+    klass_config_label: xgres
+    count: 3
+    zone: us-west-2a
+    os_type: RHEL7
+    instance_type: m5d.4xlarge
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+mainline_throughput_test:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_driver: False
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    os_type: Rocky8
+    instance_type: c5.4xlarge
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable
+    count: 3
+    zone: us-west-2a
+    os_type: CentOS7
+    instance_type: m5d.4xlarge
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+
+tpch-perf-test:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_driver: False
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: benchbase
+    count: 1
+    zone: us-west-2a
+    os_type: Rocky8
+    instance_type: c5.4xlarge
+    network: *public_cloud
+    storage: *ebs10K
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpch
+    count: 3
+    zone: us-west-2a
+    os_type: RHEL7
+    instance_type: r6i.8xlarge
+    network: *public_cloud
+    storage: *ebs10K
+
+sky_comparison_driver:
+  cloud: aws
+  region: us-east-2-PerformanceEngineering
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-east-2b
+    os_type: CentOS7
+    instance_type: c5.large
+    network: *public_cloud
+
+sky_comparison:
+  cloud: aws
+  region: us-east-2-PerformanceEngineering
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    os_type: CentOS7
+    zone: us-east-2c
+    instance_type: m5.large
+    network: *public_cloud
+  proxy:
+    klass: proxy.Maxscale
+    klass_config_label: latest
+    count: 1
+    zone: us-east-2c
+    os_type: CentOS7
+    instance_type: m5.large
+    network: *public_cloud
+  backend-a:
+    klass: backend.Xpand
+    klass_config_label: sky_compare
+    count: 1
+    zone: us-east-2a
+    os_type: CentOS7
+    instance_type: m5.xlarge
+    network: *public_cloud
+    storage:
+      type: io1
+      size: 500
+      iops: 2000
+  backend-b:
+    klass: backend.Xpand
+    klass_config_label: sky_compare
+    count: 1
+    zone: us-east-2b
+    os_type: CentOS7
+    instance_type: m5.xlarge
+    network: *public_cloud
+    storage:
+      type: io1
+      size: 500
+      iops: 2000
+  backend-c:
+    klass: backend.Xpand
+    klass_config_label: sky_compare
+    count: 1
+    zone: us-east-2c
+    os_type: CentOS7
+    instance_type: m5.xlarge
+    network: *public_cloud
+    storage:
+      type: io1
+      size: 500
+      iops: 2000

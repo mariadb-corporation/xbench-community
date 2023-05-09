@@ -1,0 +1,12 @@
+defaults:
+  # verify that this commandline works with PSQL
+  connection: --db-driver={{dialect}} --{{dialect}}-host={{host}} --{{dialect}}-user={{user}} --{{dialect}}-password='{{password}}' --{{dialect}}-port={{port}} --{{dialect}}-db={{database}} {{ssl_mode}}
+  prepare: sysbench {{lua_name}} {{connection}} --create_secondary={{create_secondary}} --auto_inc={{auto_inc}} --table-size={{table_size}} --tables={{tables}} --threads={{tables}} --rand-seed={{rand_seed}} --rand-type={{rand_type}}  prepare
+  cleanup: sysbench {{lua_name}} {{connection}} --table-size={{table_size}} --tables={{tables}} --threads={{tables}} --rand-seed={{rand_seed}} cleanup
+oltp_read_only:
+  run: sysbench {{lua_name}} {{connection}} --rand-type={{rand_type}} --skip-trx={{skip_trx}} --auto_inc={{auto_inc}} --threads={{t}} --warmup-time={{warmup_time}} --report-interval={{report_interval}} --table-size={{table_size}} --tables={{tables}} --time={{time}} --rand-seed={{rand_seed}} --histogram --percentile={{percentile}} run
+oltp_read_write:
+  run: sysbench {{lua_name}} {{connection}} --rand-type={{rand_type}} --point-selects={{point_selects}} --range-selects={{range_selects}}  --index_updates={{index_updates}} --non-index-updates={{non_index_updates}} --delete-inserts={{delete_inserts}} --create_secondary={{create_secondary}} --auto_inc={{auto_inc}} --threads={{t}} --warmup-time={{warmup_time}} --report-interval={{report_interval}} --table-size={{table_size}} --tables={{tables}} --time={{time}} --rand-seed={{rand_seed}} --histogram --percentile={{percentile}} run
+tpcc:
+  prepare: sysbench {{lua_name}} {{connection}} --scale={{scale}} --tables={{tables}} --threads={{tables}} --rand-seed={{rand_seed}} --rand-type={{rand_type}} prepare
+  run: sysbench {{lua_name}} {{connection}} --scale={{scale}} --rand-type={{rand_type}} --threads={{t}} --warmup-time={{warmup_time}} --report-interval={{report_interval}} --tables={{tables}} --time={{time}} --rand-seed={{rand_seed}} --histogram --percentile={{percentile}} run

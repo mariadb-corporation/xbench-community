@@ -1,0 +1,5 @@
+!include test_yaml_include_file_1.yaml 
+---
+!include test_yaml_include_file_2.yaml
+---
+enterprise_download_token: VAULT['maxscale_download_token']

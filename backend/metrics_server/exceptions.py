@@ -1,0 +1,2 @@
+class MetricsServerException(Exception):
+    pass

@@ -1,0 +1,7 @@
+# This assumes the same credentials in all clouds
+defaults:
+  grafana_user: VAULT['grafana_user']
+  grafana_password: VAULT['grafana_password']
+
+main:
+  data_dir: "/data"

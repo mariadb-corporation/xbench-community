@@ -1,0 +1,259 @@
+providers:
+  aws:
+    metric_server: &aws_metric_server
+      hostname: 34.217.42.247
+      username: ec2-user
+      key_file: ENV['HOME']/.xbench/pem/xbench.pem
+      remote_target_path: /etc/prometheus/targets
+      sa_token: VAULT['grafana_sa_token']
+    klass: cloud.aws.AwsCloud
+    ftp_server: &aws_ftp_server
+      hostname: 172.31.16.199
+      username: VAULT['ftp_user']
+      password: VAULT['ftp_pass']
+      root_folder: files/backup
+    s3: &s3_bucket
+      bucket: xpand-perf-backup/backup
+
+    us-west-2-PerformanceEngineering:
+      aws_region: us-west-2
+      aws_access_key_id: VAULT['pm_aws_access_key_id']
+      aws_secret_access_key: VAULT['pm_aws_secret_access_key']
+      key_name: PerformanceEngineering # this is AWS name
+      key_file: ENV['HOME']/.xbench/pem/MariaDBPerformance.pem # this is local file
+      security_group: sg-087c06b941c153579
+      placement_group: Xpand
+      metric_server: *aws_metric_server
+      ftp_server: *aws_ftp_server
+      s3: *s3_bucket
+      zones:
+        us-west-2a: subnet-55ec552d # Subnets https://us-west-2.console.aws.amazon.com/vpc/home?region=us-west-2#subnets:
+        us-west-2b: subnet-e837eca2
+        us-west-2c: subnet-644cc439
+        us-west-2d: subnet-8cc7c7a7
+      images: # https://www.centos.org/download/aws-images/
+        CentOS7:
+          x86_64:
+            image_id: ami-0bc06212a56393ee1 # Stable Centos ami-0bc06212a56393ee1 # experimental ami-0344ac9e07492a13c
+            ssh_user: centos # centos # clustrix
+        RHEL7:
+          x86_64:
+            image_id: ami-027da4fca766221c9 # https://access.redhat.com/solutions/15356#us_west_2_rhel7
+            ssh_user: ec2-user
+        CentOS8:
+          x86_64:
+            image_id: ami-0db680f22bac77f59
+            ssh_user: centos
+        Rocky8: # https://rockylinux.org/cloud-images/
+          x86_64:
+            image_id: ami-09ca837d91f083d04
+            ssh_user: rocky
+          aarch64:
+            image_id: ami-08eb90c0d94c32ff4
+            ssh_user: rocky
+
+    us-east-2-PerformanceEngineering:
+      aws_region: us-east-2
+      aws_access_key_id: VAULT['pm_aws_access_key_id']
+      aws_secret_access_key: VAULT['pm_aws_secret_access_key']
+      key_name: PerformanceEngineering
+      key_file: ENV['HOME']/.xbench/pem/PerformanceEngineering-east-2.pem
+      security_group: sg-0b6e5d03e0dba8bf3
+      placement_group: pg-0a02b3052be5ee46b
+      metric_server:
+        hostname: 3.143.7.136
+        username: rocky
+        key_file: ENV['HOME']/.xbench/pem/xbench.pem
+        remote_target_path: /etc/prometheus/targets
+        sa_token: #VAULT['grafana_sa_token']
+      zones:
+        us-east-2a: subnet-0ce8e9a71037f8864
+        us-east-2b: subnet-031e57f689c662438
+        us-east-2c: subnet-0e2a9edb3313a32b9
+      images: # https://www.centos.org/download/aws-images/
+        CentOS7:
+          x86_64:
+            image_id: ami-00f8e2c955f7ffa9b # Stable Centos ami-0bc06212a56393ee1 # experimental ami-0344ac9e07492a13c
+            ssh_user: centos # centos # clustrix
+        CentOS8:
+          x86_64:
+            image_id: ami-05cefb3ebaddc75f6
+            ssh_user: centos
+        Rocky8: # https://rockylinux.org/cloud-images/
+          x86_64:
+            image_id: ami-0ebdcb3515daa1b1b
+            ssh_user: rocky
+          aarch64:
+            image_id: ami-0b6159d240ab78b1a08882eba49067074f
+            ssh_user: rocky
+        RHEL7:
+          x86_64:
+            image_id: ami-0bb2449c2217cb9b0 # https://access.redhat.com/solutions/15356#us_west_2_rhel7
+            ssh_user: ec2-user
+
+    us-east-1-PerformanceEngineering:
+      aws_region: us-east-1
+      aws_access_key_id: VAULT['pm_aws_access_key_id']
+      aws_secret_access_key: VAULT['pm_aws_secret_access_key']
+      key_name: PerformanceEngineering
+      key_file: ENV['HOME']/.xbench/pem/PerformanceEngineering-east-1.pem
+      security_group: sg-0dcf1ec49e93f25f1 # sg-bb714fb8
+      placement_group: pg-0add736f64c955350
+      # metric_server: *aws_metric_server
+      zones:
+        us-east-1a: subnet-08c9ac69812993906
+        us-east-1b: subnet-002c5184979f50906
+        us-east-1c: subnet-044e0c5829e34bbba
+      images: # https://www.centos.org/download/aws-images/
+        # aws --region us-east-2 ec2 describe-images --owners aws-marketplace --filters Name=product-code,Values=cvugziknvmxgqna9noibqnnsy
+        CentOS7:
+          x86_64:
+            image_id: ami-02358d9f5245918a3 # Stable Centos ami-0bc06212a56393ee1 # experimental ami-0344ac9e07492a13c
+            ssh_user: centos # centos # clustrix
+        CentOS8:
+          x86_64:
+            image_id: ami-0db680f22bac77f59
+            ssh_user: centos
+        Rocky8: # https://rockylinux.org/cloud-images/
+          x86_64:
+            image_id: ami-043ceee68871e0bb5
+            ssh_user: rocky
+          aarch64:
+            image_id: ami-096e199c58bb0653f
+            ssh_user: rocky
+
+  skysql:
+    klass: cloud.skysql.SkySQLCloud
+    aws-us-west-2:
+      provider: aws # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_api_key']
+      region: us-west-2
+      api_server: "https://api.skysql.net"
+      id_server: "https://id.mariadb.com"
+
+  skysql2:
+    klass: cloud.skysql.SkySQLCloud2
+    aws-us-west-2:
+      provider: aws # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_api_key']
+      region: us-west-2
+      api_gw: "https://api.mariadb.com"
+      auth_url: "https://id-prod.mariadb.com"
+      # project_id: "677b5791-2a33-45c5-aef0-ca04ef7d94d7" # currently API doesn't work for Power tier
+    aws-us-east-2-dev:
+      provider: aws # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_dev_api_key']
+      region: us-east-2
+      api_gw: "https://api.dev.mariadb.net"
+      auth_url: "https://id-dev.mariadb.com"
+    aws-us-east1-2-dev:
+      provider: aws # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_dev_api_key']
+      region: us-east-2
+      api_gw: "https://api.dev.mariadb.net"
+      auth_url: "https://id-dev.mariadb.com"
+    gcp-europe-west1-dev:
+      provider: gcp # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_dev_api_key']
+      region: europe-west1
+      api_gw: "https://api.dev.mariadb.net"
+      auth_url: "https://id-dev.mariadb.com"
+    gcp-us-central1-dev:
+      provider: gcp # 'GCP' or any public cloud provider
+      api_key: VAULT['skysql_dev_api_key']
+      region: us-central1
+      api_gw: "https://api.dev.mariadb.net"
+      auth_url: "https://id-dev.mariadb.com"
+
+  colo:
+    metric_server: &colo_metric_server
+      hostname: 10.76.9.25
+      username: ubuntu
+      key_file: ENV['HOME']/.ssh/id_rsa
+      remote_target_path: /etc/prometheus/targets
+      sa_token: VAULT['colo_grafana_sa_token']
+    klass: cloud.colo.ColoCloud
+    # each 'region' has a host list in colo.yaml
+    public: # reference to `public` in colo.yaml
+      metric_server: *colo_metric_server
+      key_file: ENV['HOME']/.ssh/id_rsa
+      region: public
+      images:
+        CentOS7:
+          ssh_user: root
+    perf_tracker: # reference to `perf_tracker` in colo.yaml
+      metric_server: *colo_metric_server
+      region: perf_tracker
+      key_file: ENV['HOME']/.ssh/id_rsa
+      images:
+        CentOS7:
+          ssh_user: root
+    perf_tracker_dev: # reference to `perf_tracker_dev` in colo.yaml
+      metric_server: *colo_metric_server
+      region: perf_tracker_dev
+      key_file: ENV['HOME']/.ssh/id_rsa
+      images:
+        CentOS7:
+          ssh_user: root
+
+  aws_aurora:
+    klass: cloud.aws.AwsAuroraCloud
+    us-west-2-PerformanceEngineering:
+      aws_region: us-west-2
+      aws_access_key_id: VAULT['pm_aws_access_key_id']
+      aws_secret_access_key: VAULT['pm_aws_secret_access_key']
+      vpc_security_group: sg-087c06b941c153579
+      db_subnet_group_name: default-vpc-1b476b63
+
+  aws_rds:
+    klass: cloud.aws.AwsAuroraCloud
+    us-west-2-PerformanceEngineering:
+      aws_region: us-west-2
+      aws_access_key_id: VAULT['pm_aws_access_key_id']
+      aws_secret_access_key: VAULT['pm_aws_secret_access_key']
+      vpc_security_group: sg-087c06b941c153579
+      db_subnet_group_name: default-vpc-1b476b63
+
+  gcp: &gcp
+    metric_server: &gcp_metric_server
+      hostname: 34.123.6.81
+      username: clustrix
+      key_file: ENV['HOME']/.xbench/pem/gcp_key.pem
+      remote_target_path: /etc/prometheus/targets
+      sa_token: VAULT['gcp_grafana_sa_token']
+    klass: cloud.gcp.GcpCloud
+    us-central1-clustrix:
+      gcp_region: us-central1
+      gcp_project_id: mariadb-clustrix
+      key_file: ENV['HOME']/.xbench/pem/gcp_key.pem
+      pub_file: ENV['HOME']/.xbench/pem/gcp_key.pub
+      service_account_file: ENV['HOME']/.xbench/mariadb-clustrix-xbench.json
+      network: default
+      metric_server: *gcp_metric_server
+      images: # gcloud compute images list --project=<project-id>
+        CentOS7:
+          x86_64:
+            image_project: centos-cloud
+            image_family: centos-7
+            # image_id: centos-7-v20220719
+            ssh_user: cloud
+        CentOS8:
+          x86_64:
+            image_project: centos-cloud
+            image_family: centos-stream-8
+            # image_id: centos-stream-8-v20220719
+            ssh_user: cloud
+        Rocky8:
+          # image_id: rocky-linux-8-v20220719
+          aarch64:
+            image_project: rocky-linux-cloud
+            image_family: rocky-rocky-linux-8-optimized-gcp-arm64
+            ssh_user: clustrix
+          x86_64:
+            image_project: rocky-linux-cloud
+            image_family: rocky-linux-8
+            ssh_user: clustrix
+
+  gcp_alloydb:
+    <<: *gcp
+    klass: cloud.gcp.GcpAlloyDBCloud

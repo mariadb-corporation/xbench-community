@@ -1,0 +1,2 @@
+class XgresException(Exception):
+    pass

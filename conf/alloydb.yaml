@@ -1,0 +1,12 @@
+db: &default_db
+  host: 127.0.0.1
+  port: 5432
+  user: postgres
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+
+latest:
+  foo: bar
+  db: *default_db

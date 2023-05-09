@@ -1,0 +1,7 @@
+# based on Xbench main config file
+conf_dir: ENV['XBENCH_HOME']/conf
+clusters_dir: ENV['HOME']/.xbench/clusters
+vault_file: ENV['HOME']/.xbench/vault.yaml
+pem_dir: ENV['HOME']/.xbench/pem # Where are pem files
+certs_dir: ENV['HOME']/.xbench/certs # Where are SSL certs files
+non_existent_env_var: ENV['IDONTEXIST']

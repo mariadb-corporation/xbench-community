@@ -1,0 +1,150 @@
+# It’s not necessary to start a nested sequence with a new line
+# https://pyyaml.org/wiki/PyYAMLDocumentation#YAMLsyntax
+
+# You have to describe components by using driver*, proxy*, backend*, replica*
+# This is a great guide to think about what are you going to run: https://mariadb.com/docs/deploy/topologies/
+
+# Example of default Xpand
+default_xpand:
+  driver:
+    proxy:
+      - backend
+
+# Example of default MariaDB (it could be Xpand without proxy)
+simple:
+  driver:
+    - backend
+
+# Example of Xpand in 3 zones with single maxscale
+multi_zone_simple:
+  driver:
+    - backend1
+    - backend2
+    - backend3
+
+# Example of Xpand in 3 zones with single maxscale
+multi_zone_simple_ms:
+  driver:
+    proxy:
+      - backend1
+      - backend2
+      - backend3
+
+sky_compare:
+  driver:
+    proxy:
+      - backend-a
+      - backend-b
+      - backend-c
+
+scale_xpand:
+  driver1:
+    proxy1:
+      - backend1
+      - backend2
+      - backend3
+  driver2:
+    proxy2:
+      - backend1
+      - backend2
+      - backend3
+
+# Example of Xpand in 3 zones with 3 drivers
+multi_zone:
+  driver1:
+    - backend1
+    - backend2
+    - backend3
+  driver2:
+    - backend1
+    - backend2
+    - backend3
+  driver3:
+    - backend1
+    - backend2
+    - backend3
+# Special case when each driver connect to its own maxscale, possibly in different zones
+special_xpand:
+  driver: # Zone a
+    proxy1: # Zone a
+      - backend1 # Zone a
+      - backend2 # Zone b
+      - backend3 # Zone c
+    proxy2: # Zone b
+      - backend1
+      - backend2
+      - backend3
+
+# This is for code testing purpose
+test_only:
+  driver:
+    - backend
+
+itest:
+  driver:
+    - backend
+
+mariadb_replication:
+  driver:
+    proxy:
+      - backend
+        - replica
+
+itest_aurora:
+  driver:
+    - backend
+
+itest_sky:
+  driver:
+    - backend
+
+postgres_test:
+  driver:
+    - backend
+
+itest_xpand:
+  driver:
+    - backend1
+    - backend2
+    - backend3
+
+cross:
+  driver:
+    - backend1
+    - backend2
+
+# README section. https://mariadb.com/docs/deploy/topologies/
+
+single_node:
+  driver:
+    - backend
+
+xpand_performance:
+  driver:
+    proxy:
+      - backend
+
+# TiDB project
+tidb:
+  driver:
+    tidb:
+      tikv:
+        - tipd
+sky:
+  driver:
+    - backend
+
+columnstore_s3:
+  driver:
+    s3_store:
+      - backend
+
+columnstore_hdd:
+  driver:
+    - backend
+
+only_backend:
+  - backend
+
+only_driver:
+  driver: {}

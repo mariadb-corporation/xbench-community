@@ -1,0 +1,54 @@
+# This is a test file for yaml_config_test.py unit test.
+defaults:
+  enterprise_download_token: VAULT['maxscale_download_token']
+  enable_prometheus_exporter: True
+  prometheus_port: 9290
+
+# based on Xbench main config file
+conf_dir: ENV['XBENCH_HOME']/conf
+clusters_dir: ENV['HOME']/.xbench/clusters
+vault_file: ENV['HOME']/.xbench/vault.yaml
+pem_dir: ENV['HOME']/.xbench/pem # Where are pem files
+certs_dir: ENV['HOME']/.xbench/certs # Where are SSL certs files
+non_existent_env_var: ENV['IDONTEXIST']
+
+testRootKeyString: ^KKry5
+testRootKeyNumber: 923471
+testRootKeyBool: true
+testRoot:
+  testLeaf: 6Mun{k
+
+testDefaultsOverride:
+  testLeaf: m&.M4`
+  prometheus_port: 1019
+
+db: &default_db
+  host: 127.0.0.1 #
+  port: 3306
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+  ssl: False
+
+latest_xpand:
+  release: "6.3" # Latest releases: https://mariadb.com/kb/en/maxscale-6-release-notes/
+  db: *default_db
+  cnf_config_template: maxscale_xpand.cnf
+
+latest:
+  release: "6.4" # Latest releases: https://mariadb.com/kb/en/maxscale-6-release-notes/
+  db: *default_db
+  cnf_config_template: maxscale_xpand.cnf
+
+deep_tree_root:
+  deep_tree_level_two:
+    leaf_node_level_three: 8zla3k
+    vault_value_level_three: VAULT['xbench_db_password']
+    deep_tree_level_three:
+      leaf_node_level_four: ga4xe8
+      vault_value_level_four: VAULT['xbench_db_password']
+
+vault_test:
+  non_existent: VAULT['idontexist']

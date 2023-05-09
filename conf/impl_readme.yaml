@@ -1,0 +1,285 @@
+# implicitly depends on 'impl_anchors.yaml'
+
+aws_mariadb:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+aws_mysql:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MySQLServer
+    klass_config_label: latest # We have only community version for now
+    count: 1
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+
+aws_mariadb_arch:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: c7g.2xlarge
+    os_type: Rocky8
+    arch: aarch64
+    network: *public_cloud
+    storage: *small_ebs
+
+gcp_mariadb: #
+  cloud: gcp
+  region: us-central1-clustrix
+  driver:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    network: *public_cloud # cannot reference nodes defined in other YAML files
+  backend:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: backend.MariaDBServer
+    klass_config_label: community # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *gcp_disk
+
+aws_xpand:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  proxy:
+    klass: proxy.Maxscale # must be class reference
+    klass_config_label: latest_xpand # maxscale.yaml will have a reference to the cnf template
+    count: 2
+    zone: us-west-2a
+    instance_type: c5.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: RHEL7 # CentOS7
+    network: *public_cloud
+    storage: *ephemeral_nvme
+aws_postgres:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  backend:
+    klass: backend.PostgreSQLDB
+    klass_config_label: latest
+    count: 1
+    zone: us-west-2a
+    instance_type: c5d.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+aws_driver:
+  cloud: aws
+  region: us-west-2-PerformanceEngineering
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+
+aws_east_driver:
+  cloud: aws
+  region: us-east-2-PerformanceEngineering
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-east-2a
+    instance_type: c5.4xlarge
+    os_type: Rocky8
+
+aws_sky_xpand: # mdbint-skysql-test
+  cloud: skysql
+  region: aws-us-west-2
+  backend:
+    managed: False
+    # kind: Distributed Transactions note: for now always use xpand
+    klass: backend.SkySQLDB
+    klass_config_label: latest_xpand
+    count: 3
+    ssl: False
+    instance_type: sky-4x16
+    network: *public_cloud
+    kind: xpand
+    storage:
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 5000
+
+aws_sky2_xpand: # mdbint-skysql-test
+  cloud: skysql2
+  region: aws-us-west-2
+  backend:
+    managed: False
+    # kind: Distributed Transactions note: for now always use xpand
+    klass: backend.SkySQLXpand
+    klass_config_label: stable
+    count: 3
+    ssl: False
+    instance_type: sky-4x16 # "sky-2x8","sky-4x16","sky-4x32","sky-8x32","sky-8x64" https://github.com/mariadb-corporation/cloud-automation/blob/6616ae9/moe/moe/cloud/aws/util.py#L53
+    network: *public_cloud
+    storage:
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 5000
+
+aws_sky2_mariadb: # mdbint-skysql-test
+  cloud: skysql2
+  region: aws-us-west-2
+  backend:
+    managed: False
+    # kind: Distributed Transactions note: for now always use xpand
+    klass: backend.SkySQLMariaDB
+    klass_config_label: latest
+    count: 1
+    ssl: False
+    instance_type: sky-4x16 # "sky-2x8","sky-4x16","sky-4x32","sky-8x32","sky-8x64" https://github.com/mariadb-corporation/cloud-automation/blob/6616ae9/moe/moe/cloud/aws/util.py#L53
+    arch: x86_64 # aarch64
+    network: *public_cloud
+    storage: # https://github.com/mariadb-corporation/skysql-microservices/blob/ee45f095be514db61c8484e20c202f5f901dddf7/dbprovision-service/pkg/migrations/scripts/52_added_storage_size.up.sql#L160-L171
+      size: 300 # Size in Gigabytes no units allowed
+      iops: 1000
+
+aws_aurora_mysql: # For integration tests
+  cloud: aws_aurora # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.AuroraMySql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: db.r5.2xlarge
+    network: *public_cloud
+
+aws_aurora_postgresql: # For integration tests
+  cloud: aws_aurora # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.AuroraPostgreSql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: db.r5.2xlarge
+    network: *public_cloud
+
+aws_rds: # For integration tests
+  cloud: aws_rds # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  backend:
+    managed: False
+    klass: backend.RdsMySql
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 1
+    zone: us-west-2a
+    instance_type: db.r5.2xlarge
+    network: *public_cloud
+    storage:
+      type: io1 # Valid values: gp2 | gp3 | io1 | standard
+      size: 250 # Size in Gigabytes
+      iops: 1000
+
+gcp_driver: # For integration tests
+  cloud: gcp
+  region: us-central1-clustrix
+  driver:
+    managed: True # If True then a valid SSH key is required for Node init. key_file can be defined in cloud.yaml
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: sysbench # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-central1-a
+    instance_type: n2-standard-4
+    os_type: Rocky8
+
+gcp_alloydb: # For Documentation purpose
+  cloud: gcp_alloydb
+  region: us-central1-clustrix
+  backend:
+    managed: False
+    klass: backend.AlloyDB
+    klass_config_label: latest
+    count: 1
+    zone: us-central1 # in AlloyDB you can only specify the region?
+    # instance_type name tells CPU count and memory size. It's used to calculate Postgres config param values.
+    instance_type: n2-highmem-8 # https://cloud.google.com/compute/docs/general-purpose-machines#n2-high-mem
+    password: VAULT['xbench_db_password'] # AlloyDB cluster password, see https://cloud.google.com/sdk/gcloud/reference/beta/alloydb/clusters/create
+    network: *public_cloud

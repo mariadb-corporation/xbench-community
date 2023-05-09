@@ -1,0 +1,85 @@
+itest_colo:
+  cloud: colo
+  region: public
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    # yin machines do not have storage
+    instance_type: yin
+    network:
+      cloud_type: private_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: stable
+    count: 3
+    storage: *local_ssd
+    instance_type: yang
+    network:
+      cloud_type: private_cloud
+
+itest_colo_xpand:
+  cloud: colo
+  region: public
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    instance_type: yin
+    network:
+      cloud_type: private_cloud
+  proxy:
+    klass: proxy.Maxscale # must be class reference
+    klass_config_label: latest_xpand # maxscale.yaml will have a reference to the cnf template
+    count: 1
+    instance_type: yang
+    network:
+      cloud_type: private_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: latest
+    count: 3
+    storage: *local_ssd
+    instance_type: yang
+    network:
+      cloud_type: private_cloud
+
+scalability_colo_xpand:
+  cloud: colo
+  region: public
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: sysbench
+    count: 1
+    storage: *local_ssd # This will mount /xbench to local nvme
+    instance_type: yang
+    network:
+      cloud_type: public_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: latest
+    count: 3
+    storage: *local_ssd
+    instance_type: yang
+    network:
+      cloud_type: public_cloud
+
+rt_dev:
+  cloud: colo
+  region: perf_tracker_dev
+  driver:
+    klass: driver.BaseDriver
+    klass_config_label: benchbase
+    count: 1 # yin02e, yin02g
+    # yin machines do not have storage
+    instance_type: yin
+    network:
+      cloud_type: private_cloud
+  backend:
+    klass: backend.Xpand
+    klass_config_label: tpcc
+    count: 4 # yang02e,f,g,h
+    storage: *local_ssd
+    instance_type: yang
+    network:
+      cloud_type: private_cloud

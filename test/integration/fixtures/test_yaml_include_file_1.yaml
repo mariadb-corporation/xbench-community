@@ -1,0 +1,3 @@
+aws_xpand:
+  cloud: aws
+  password: VAULT['xbench_db_password']

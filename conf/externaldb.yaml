@@ -1,0 +1,20 @@
+globals: &default_globals # boolean has to be strings
+  max_connections: 2048
+  sigma_skiplist: "true"
+  query_fanout_all_writes: "true"
+  hash_dist_min_slices: 0 # set number of slices = number of cores #TODO number of cores - 1
+
+db: &default_skysql_db
+  host: 127.0.0.1 # or could be multiple ip addresses delimited by commas
+  port: 5001
+  user: xbench
+  password: VAULT['xbench_db_password']
+  database: sysbench
+  connect_timeout: 5
+  read_timeout: 5
+  dialect: mysql
+  autocommit:
+
+skysql_xpand:
+  db: *default_skysql_db
+  globals: *default_globals

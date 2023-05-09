@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    {% set connect_string = [] %}
+    {%- for h in host.split(',') -%}
+    {% set _ =  connect_string.append( h+":"+port|string ) %}
+    {%- endfor -%}
+    <!-- Java needs to have underscore and not hyphen  -->
+    <type>{{product|upper|replace("-", "_")}}</type>
+    {% if product == 'mariadb' %}
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://{{host}}:{{port}}/{{database}}?rewriteBatchedStatements=true&amp;useServerPrepStmts=true</url>
+    {% elif product == 'xpand' %}
+    <driver>org.mariadb.jdbc.Driver</driver>
+    {% if step == 'prepare' %}
+    <url>jdbc:mariadb:loadbalance://{{ connect_string |join(',') }}/{{database}}?rewriteBatchedStatements=true</url>
+    {% elif step == 'run' %}
+    <url>jdbc:mariadb:loadbalance://{{ connect_string |join(',') }}/{{database}}?useServerPrepStmts=true</url>
+    {% endif %}
+
+    {% elif product == 'aurora-mysql' %}
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://{{host}}:{{port}}/{{database}}?rewriteBatchedStatements=true&amp;useServerPrepStmts=false&amp;sslMode=DISABLED</url>
+    {% elif product == 'tidb' %}
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb:loadbalance://{{ connect_string |join(',') }}/{{database}}?rewriteBatchedStatements=true&amp;useServerPrepStmts=true&amp;sslMode=DISABLED&amp;useConfigs=maxPerformance</url>
+    {% elif product == 'postgres' %}
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://{{ connect_string |join(',') }}/{{database}}?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true&amp;loadBalanceHosts=true</url>
+    {% elif product == 'aurora-postgres' %}
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://{{ connect_string |join(',') }}/{{database}}?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true&amp;loadBalanceHosts=true</url>
+    {% endif %}
+    <username>{{user}}</username>
+    <password>{{password}}</password>
+    {% if product == 'mariadb' %}
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    {% elif product == 'xpand' %}
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    {% elif product == 'aurora-mysql' %}
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    {% elif product == 'tidb' %}
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    {% elif product == 'postgres' %}
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    {% endif %}
+    <batchsize>{{batchsize}}</batchsize>
+    <randomSeed>{{randomseed}}</randomSeed>
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>{{scale}}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>{{terminals}}</terminals>
+    <works>
+        <work>
+            <time>{{time}}</time>
+            <warmup>{{warmup}}</warmup>
+            <rate>unlimited</rate>
+            <weights>45,43,4,4,4</weights>
+        </work>
+    </works>
+
+    <!-- Terminal to Warehouse Distribution Method -->
+    <terminalDistributionMethod>{{terminal_distribution_method}}</terminalDistributionMethod>
+
+    <!--
+    <terminalDistributionMethod>default</terminalDistributionMethod>
+    <terminalDistributionMethod>random</terminalDistributionMethod>
+    <terminalDistributionMethod>segmented</terminalDistributionMethod>
+    -->
+
+    <!-- TPCC specific -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NewOrder</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Payment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>OrderStatus</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Delivery</name>
+        </transactiontype>
+        <transactiontype>
+            <name>StockLevel</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

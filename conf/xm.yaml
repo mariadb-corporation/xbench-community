@@ -1,0 +1,5 @@
+default:
+  git_token: VAULT['xgres_git_token']
+  commit: 10.6-serg
+  mode: benchmark
+  skip: 0

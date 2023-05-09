@@ -1,0 +1,68 @@
+# SkySQL https://jira.mariadb.org/browse/DBAAS-7574
+# https://mariadb.com/kb/en/mariadb-memory-allocation/
+# https://mariadb.com/kb/en/configuring-mariadb-for-optimal-performance/
+
+[mariadbd]
+port = {{mariadb.port}}
+socket = {{config.data_dir}}/mysql.sock
+# Data  Configuration
+datadir = {{config.data_dir}}
+pid-file = {{config.data_dir}}/mariadb.pid
+log-error = {{config.data_dir}}/mariadb.log
+general_log_file = {{config.data_dir}}/mariadb-general.log
+slow_query_log_file = {{config.data_dir}}/mariadb-slow_query.log
+
+character_set_server = utf8mb4
+collation_server = utf8mb4_unicode_ci
+
+# InnoDB system variables: https://mariadb.com/kb/en/innodb-system-variables/
+default_storage_engine = InnoDB
+#innodb_page_size = 8192
+innodb_buffer_pool_size = {{system.buffer_pool_size}}M
+innodb_log_buffer_size = 64M
+innodb_log_file_size = {{system.buffer_pool_size // 2}}M
+
+# SSD Tuning
+innodb_flush_neighbors = 0
+innodb_io_capacity = 30000
+# https://mariadb.com/docs/storage-engines/innodb/operations/configure-io-threads/
+innodb_read_io_threads = 8
+innodb_write_io_threads = 8
+
+
+innodb_flush_method = O_DIRECT
+innodb_adaptive_flushing = 1
+innodb_max_dirty_pages_pct = 80
+innodb_max_dirty_pages_pct_lwm = 10
+
+# Binlog
+{% if config.binlog %}
+log_bin = mariadb-bin
+binlog_cache_size = 262144
+binlog_format = ROW
+binlog_row_image = MINIMAL
+binlog_stmt_cache_size = 131072
+{% else %}
+skip-log-bin
+{% endif %}
+
+{% if mariadb.ssl %}
+ssl_cert = /etc/my.cnf.d/certificates/server-cert.pem
+ssl_key = /etc/my.cnf.d/certificates/server-key.pem
+ssl_ca = /etc/my.cnf.d/certificates/ca.pem
+{% endif %}
+
+
+# Higher Concurrency
+thread_handling = pool-of-threads
+max_connections = 2048
+thread_stack=524288
+table_open_cache = 4096
+max_prepared_stmt_count = 1048576
+
+# 200805  Jira MDEV-22278 sets default to off.
+temp_pool = 0
+
+#allow more connect errors
+max_connect_errors = 10000000
+max_connections = 4096

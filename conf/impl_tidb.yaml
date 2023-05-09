@@ -1,0 +1,79 @@
+tidb: #
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.18xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  tidb:
+    klass: backend.TiDB
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: m5.8xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  tikv:
+    klass: backend.TiKV
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: m5d.8xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  tipd:
+    klass: backend.TiPD
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: m5d.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+
+tidb_dev:
+  cloud: aws # Must have key. This key shouldn't be redefined below.
+  region: us-west-2-PerformanceEngineering # Must have key. Shouldn't be redefined below.
+  use_placement_group: False
+  driver:
+    klass: driver.BaseDriver # must be class reference
+    klass_config_label: benchbase # For Driver this is reference to benchmarks to install
+    count: 1
+    zone: us-west-2a
+    instance_type: c5.18xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *driver_logs
+  tidb:
+    klass: backend.TiDB
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: c5ad.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+  tikv:
+    klass: backend.TiKV
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 6
+    zone: us-west-2a
+    instance_type: c5ad.4xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
+  tipd:
+    klass: backend.TiPD
+    klass_config_label: latest # For xpand this is configuration which includes release/branch
+    count: 3
+    zone: us-west-2a
+    instance_type: m5d.2xlarge
+    os_type: Rocky8
+    network: *public_cloud
+    storage: *ephemeral_nvme
