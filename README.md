@@ -97,11 +97,11 @@ Directory belows contains secrets (AWS keys, passwords, pem files):
 $HOME/.xbench  # You need to obtain this directory separately
 ```
 
-You will need a vault.yaml in the above mentioned directory to run xbench. Please refer to the vault.yaml in the Performance Team 1Password vault.
+You will need a vault.yaml in the above mentioned directory to run xbench.
 
 ### Vault
 
-In order to use Xbench you need to obtain (or create) the vault (vault.yaml) and pem files. MariaDB employee could get it from the corporate Performance Team 1Password vault.
+In order to use Xbench you need to obtain (or create) the vault (vault.yaml) and pem files.
 
 Here is the structure of directories you supposed to create:
 
@@ -116,6 +116,7 @@ drwxr-xr-x   59 user  group  1888 Apr 26 14:24 clusters # all your clusters
 drwxr-xr-x    5 user  group   160 Jun 13  2022 certs   # SSL certificates
 ```
 
+Refer to the [Security](#security) section for an example vault file.
 
 ### Known issues
 
